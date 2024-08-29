@@ -59,11 +59,8 @@ def createDF(driver):
     #create base dataframe
     df = pd.DataFrame(data_tuples, columns=['Artist','Album', 'Label', 'Genre', 'Rating'])
 
-    #drop all rows that don't have a rating
-    cleaned_df =  df.drop(df[df["Rating"]==''].index)  
-
     #return the cleaned dataframe
-    return cleaned_df
+    return df
 
 #createAndShowPlot - creates and shows a bar graph comparing the top 5 genres with the most album releases. The x-axis being the genre and y-axis number of albums released  
 def createAndShowPlot(df):
@@ -82,7 +79,7 @@ def createAndShowPlot(df):
     ax = plt.gca()
 
     #make the x-axis labels horizontal for easier readability and apply a textwrap so labels don't overlap
-    ax.set_xticklabels([textwrap.fill(label, 10) for label in top_genres.index], rotation=0)
+    ax.set_xticklabels([textwrap.fill(label, 15) for label in top_genres.index], rotation=0)
 
     # Adjust layout to prevent clipping
     plt.tight_layout()
