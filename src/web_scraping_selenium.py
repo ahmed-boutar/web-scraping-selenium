@@ -39,9 +39,7 @@ def create_df(driver):
     Performs webscraping on www.allmusic.com and creates a dataframe of newly released albums
 
     Parameters:
-    column_name (str): name of the column to include in the x-axis
-    plot_name (str): name of the plot to be displayed
-    df (object): dataframe object from which the plot will be created
+    driver (webdriver): the driver used to perform webscraping
 
     Returns: 
     object: The dataframe object to be used for processing and analysis
@@ -53,7 +51,7 @@ def create_df(driver):
     #list of all the dates that will be scraped. Corresponds to the releases in August 2024
     august_release_dates = ["20240802","20240809", "20240816","20240823", "20240830"]
 
-    #list representing the columns
+    #lists representing each column to be added to the created dataframe
     artists_list = []
     album_names_list = []
     labels_list = []
@@ -76,6 +74,7 @@ def create_df(driver):
         genres = driver.find_elements(By.XPATH, "//td[@class='genre']")
         ratings = driver.find_elements(By.XPATH, "//td[@class='rating']")
 
+        #assign each value found from the website to the appropriate list
         for entry in range(len(artists)):
             artists_list.append(artists[entry].text)
             album_names_list.append(albums[entry].text)
@@ -88,7 +87,7 @@ def create_df(driver):
     #create base dataframe
     df = pd.DataFrame(data_tuples, columns=['Artist','Album', 'Label', 'Genre', 'Rating'])
 
-    #return the cleaned dataframe
+    #return the dataframe
     return df
 
 def create_and_show_bar_plot(column_name, plot_name, df):
@@ -172,10 +171,10 @@ def fill_empty_label_column(df):
     Returns:
     object: dataframe object with values in every cell of the 'Label' column
     """
-    df['Label'] = df['Label'].fillna('Other')
+    df.loc[:, 'Label'] = df['Label'].fillna('Other')
     return df
 
-def clean_df(df):
+def drop_no_rating_or_artist(df):
     """
     This function cleans the dataset by dropping any rows without an artist name, 
     or rating.
@@ -189,6 +188,23 @@ def clean_df(df):
     """
     temp_df = drop_rows_with_no_rating(df)
     return drop_rows_with_no_artist_name(temp_df)
+
+def save_top_albums(df, num_rankings):
+    """
+    This function gets the top albums and saves them to an excel file named 'top_albums.xlsx'
+
+    Parameters: 
+    df (Dataframe object): the dataframe to be cleaned
+    num_rankings (int): the number of albums to be saved to the excel file
+    """
+    #create the album recommendations for August (top 20 albums)
+    top_albums = df.nlargest(num_rankings, 'Rating')
+
+    #Prepend a column that shows the ranking of each album
+    top_albums.insert(0, "Ranking", list(range(1, num_rankings+1)))
+
+    #save the ranked albums to an excel file
+    top_albums.to_excel('top_albums.xlsx',index=False)
 
 def main():
     # get and start chrome driver
@@ -205,21 +221,21 @@ def main():
 
     #drop duplicate rows
     df_no_dups = drop_duplicates(df)
-
-    # Create and show plot of album releases by genre
-    create_and_show_bar_plot('Genre', 'Album Releases By Genre August 2024', df_no_dups)
-
+    
     #Fill in the empty label column before making the bar plot to avoid missing values in the x-axis
     df_cleaned = fill_empty_label_column(df_no_dups)
+
+    # Create and show plot of album releases by genre
+    create_and_show_bar_plot('Genre', 'Album Releases By Genre August 2024', df_cleaned)
 
     # Create and show plot of number of album releases by record labels
     create_and_show_bar_plot('Label', 'Album Releases By Record Labels August 2024', df_cleaned)
 
-    #clean the df here since this new version will be used for the album recommendation
-    df_cleaned = clean_df(df_cleaned)
+    #drop rows that don't have a rating or an artist name to generate album recommendations
+    df_cleaned = drop_no_rating_or_artist(df_cleaned)
 
-    #create the album recommendations for August (top 20 albums)
-    top_albums = df_cleaned.nlargest(20, 'Rating')
+    #save the top 20 albums to an excel file
+    save_top_albums(df_cleaned, 20)
     
 #ensure main is only run when the script is executed directly
 if __name__ == "__main__":
