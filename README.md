@@ -27,6 +27,7 @@ openpyxl==3.1.5 <br>
 ## Additional requirements: 
 - Ensure that you are running Python3.11
 - Ensure that you have Excel or an ExcelViewer on your computer
+- Ensure that you have Google Chrome installed on your device
 
 ## Instructions to run:
 ### 1. Change the directory to where the web_scraping_selenium.py is 
