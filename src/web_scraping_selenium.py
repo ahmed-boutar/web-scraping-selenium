@@ -82,6 +82,7 @@ def create_df(driver):
             genres_list.append(genres[entry].text)
             ratings_list.append(ratings[entry].text)
 
+    #created this list of tuples to comply with pandas documentation for creating a df
     data_tuples = list(zip(artists_list[1:], album_names_list[1:], labels_list[1:], genres_list[1:], ratings_list[1:]))
 
     #create base dataframe
@@ -215,9 +216,6 @@ def main():
 
     # quit Chrome since we are done scraping
     driver.quit()
-
-    #TODO: Delete this before submitting!!!
-    df = pd.read_csv("../data/august_album_releases.csv")
 
     #drop duplicate rows
     df_no_dups = drop_duplicates(df)
