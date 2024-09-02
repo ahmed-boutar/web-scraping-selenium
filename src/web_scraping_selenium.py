@@ -181,6 +181,7 @@ def fill_empty_label_column(df):
     object: dataframe object with values in every cell of the 'Label' column
     """
     df.loc[:, 'Label'] = df['Label'].fillna('Other')
+    df.loc[:, 'Label'] = df['Label'].replace('', 'Other')
     return df
 
 def drop_no_rating_or_artist(df):
