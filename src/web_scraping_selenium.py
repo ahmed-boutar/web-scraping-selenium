@@ -81,17 +81,16 @@ def create_df(driver):
             album_names_list.append(albums[entry].text)
             labels_list.append(labels[entry].text)
             genres_list.append(genres[entry].text)
-
-            
             try:
                 #convert the rating to an int if it's a text
-                rating = int(ratings[entry].text)
+                rating = float(ratings[entry].text)
             except ValueError:
                 #convert the rating to a NaN value if the text is empty
                 rating = np.nan
             
             ratings_list.append(rating)
 
+    #created this list of tuples to comply with pandas documentation for creating a df
     data_tuples = list(zip(artists_list[1:], album_names_list[1:], labels_list[1:], genres_list[1:], ratings_list[1:]))
 
     #create base dataframe
@@ -181,7 +180,6 @@ def fill_empty_label_column(df):
     Returns:
     object: dataframe object with values in every cell of the 'Label' column
     """
-    
     df.loc[:, 'Label'] = df['Label'].fillna('Other')
     return df
 
